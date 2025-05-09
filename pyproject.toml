@@ -1,0 +1,7 @@
+[project]
+name = "python-version-controller"
+version = "0.1.0"
+description = "PyVC python version controller using conventional commits"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
