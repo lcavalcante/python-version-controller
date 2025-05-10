@@ -1,0 +1,43 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 70%
+        threshold: 1%
+        base: auto
+        if_ci_failed: error
+
+    patch:
+      # Coverage for new/modified code in PR
+      default:
+        target: 80%
+        threshold: 1%
+        base: auto
+        if_ci_failed: error
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: true
+
+ignore:
+  - "tests/"
+  - "**/__pycache__/"
+  - "setup.py"
+  - "**/migrations/"
+  - "**/*.md"
+
+flags:
+  unittests:
+    paths:
+      - tests/
+    carryforward: true
+
+  integration:
+    paths:
+      - tests/
+    carryforward: true
+
+
+github_checks:
+  annotations: true
