@@ -1,4 +1,7 @@
 from enum import StrEnum
+import structlog
+
+log = structlog.get_logger()
 
 
 class CommitEnum(StrEnum):
@@ -23,18 +26,30 @@ def print_semver(semver: dict) -> str:
     return f"{semver.get('major', 0)}.{semver.get('minor', 0)}.{semver.get('patch')}"
 
 
-def bump_version(type: str, message: str, semver: dict) -> None:
-    if is_breaking_change(type, message):
-        semver["major"] += 1
-        print(f"{type} commit bump MAJOR")
-    elif type == CommitEnum.FEAT:
-        semver["minor"] += 1
-        print(f"{type} commit bump MINOR")
-    elif type == CommitEnum.FIX:
-        semver["patch"] += 1
-        print(f"{type} commit bump PATCH")
+def bump_version(message: str, semver: dict, log=log) -> None:
+    head = message.split("\n")[0]
+
+    # TODO: regex?
+    parsed_head = head.split(":")
+
+    if len(parsed_head) > 1:
+        commit_type = parsed_head[0].strip()
+        head_text = parsed_head[1].strip()
+        log = log.bind(tag=commit_type, text=head_text)
+
+        if is_breaking_change(commit_type, message):
+            semver["major"] += 1
+            log.debug("bump Major")
+        elif commit_type == CommitEnum.FEAT:
+            semver["minor"] += 1
+            log.debug("bump Minor")
+        elif commit_type == CommitEnum.FIX:
+            semver["patch"] += 1
+            log.debug("bump Patch")
+        else:
+            log.debug("no bump")
     else:
-        print(f"{type} commit has no bump")
+        log.info("not in conventional commit spec")
 
 
 mock_commits = [
@@ -57,13 +72,9 @@ def main():
     }
 
     for message in mock_commits:
-        head = message.split("\n")[0]
-        parsed_head = head.split(":")
-        if len(parsed_head) > 1:
-            commit_type = parsed_head[0]
-            bump_version(commit_type, message, semver)
+        bump_version(message, semver)
 
-        print(f"final version: {print_semver(semver)}")
+    log.info(f"final version {print_semver(semver)}")
 
 
 if __name__ == "__main__":
