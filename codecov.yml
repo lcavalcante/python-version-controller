@@ -27,17 +27,5 @@ ignore:
   - "**/migrations/"
   - "**/*.md"
 
-flags:
-  unittests:
-    paths:
-      - tests/
-    carryforward: true
-
-  integration:
-    paths:
-      - tests/
-    carryforward: true
-
-
 github_checks:
   annotations: true
