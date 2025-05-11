@@ -1,32 +1,22 @@
 import structlog
-from bump import bump_version, print_semver
+from semver import SemVer
+from pygit2.repository import Repository
+from pygit2.enums import SortMode
 
 
 log = structlog.get_logger()
 
-mock_commits = [
-    "chore: initial commit",
-    "feat: add stuff",
-    "fix: fix stuff",
-    "style: beautiful stuff",
-    "feat!: sorry broke stuff",
-    "fix: stuff is hard.",
-    "perf: BREAKING CHANGE: fast stuff goes hard",
-    "docs: wrote stuff",
-]
-
 
 def main():
-    semver = {
-        "major": 0,
-        "minor": 1,
-        "patch": 0,
-    }
+    semver = SemVer(0, 1, 0)
 
-    for message in mock_commits:
-        bump_version(message, semver)
+    repo = Repository(".git")
 
-    log.info(f"final version {print_semver(semver)}")
+    for commit in repo.walk(repo.head.target, SortMode.TOPOLOGICAL | SortMode.REVERSE):
+        message = commit.message
+        semver.bump_version(message)
+
+    log.info(f"final version {str(semver)}")
 
 
 if __name__ == "__main__":

@@ -1,13 +1,10 @@
 import pytest
+from pyvc.semver import SemVer
 
 
 @pytest.fixture
-def initial_version() -> dict:
-    return {
-        "major": 0,
-        "minor": 1,
-        "patch": 0,
-    }
+def initial_version() -> SemVer:
+    return SemVer(0, 1, 0)
 
 
 # Conventional feature commits
