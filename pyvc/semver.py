@@ -1,20 +1,20 @@
-from enum import StrEnum
+from enum import Enum, auto
 
 
 import structlog
 
 
-class CommitEnum(StrEnum):
-    FEAT = "feat"
-    FIX = "fix"
-    BUILD = "build"
-    CHORE = "chore"
-    CI = "ci"
-    DOCS = "docs"
-    STYLE = "style"
-    REFACTOR = "refactor"
-    PERF = "perf"
-    TEST = "test"
+class CommitEnum(Enum):
+    FEAT = auto()
+    FIX = auto()
+    BUILD = auto()
+    CHORE = auto()
+    CI = auto()
+    DOCS = auto()
+    STYLE = auto()
+    REFACTOR = auto()
+    PERF = auto()
+    TEST = auto()
 
 
 class SemVer:
@@ -41,13 +41,36 @@ class SemVer:
         return type[-1] == "!" or "BREAKING CHANGE:" in message
 
     def bump_version(self, message: str) -> None:
+        """
+        Given a version number MAJOR.MINOR.PATCH, increment the:
+
+        - MAJOR: version when you make incompatible API changes
+        - MINOR: version when you add functionality in a backward compatible manner
+        - PATCH: version when you make backward compatible bug fixes
+        Additional labels for pre-release and build metadata are available as
+        extensions to the MAJOR.MINOR.PATCH format.
+
+        fix: a commit of the type fix patches a bug in your codebase
+             (this correlates with PATCH in Semantic Versioning).
+
+        feat: a commit of the type feat introduces a new feature to the codebase
+            (this correlates with MINOR in Semantic Versioning).
+
+        BREAKING CHANGE: a commit that has a footer BREAKING CHANGE:, or appends a !
+                         after the type/scope, introduces a breaking API change
+                         (correlating with MAJOR in Semantic Versioning).
+                         A BREAKING CHANGE can be part of commits of any type.
+
+        # Parameters:
+        message (str): commit message content
+        """
         head = message.split("\n")[0]
 
         # TODO: regex?
         parsed_head = head.split(":")
 
         if len(parsed_head) > 1:
-            commit_type = parsed_head[0].strip()
+            commit_type = parsed_head[0].strip().upper()
             head_text = parsed_head[1].strip()
             self.log = self.log.bind(tag=commit_type, text=head_text)
 
@@ -56,11 +79,11 @@ class SemVer:
                 self.minor = 0
                 self.patch = 0
                 self.log.debug("bump Major")
-            elif commit_type == CommitEnum.FEAT:
+            elif commit_type == CommitEnum.FEAT.name:
                 self.minor += 1
                 self.patch = 0
                 self.log.debug("bump Minor")
-            elif commit_type == CommitEnum.FIX:
+            elif commit_type == CommitEnum.FIX.name:
                 self.patch += 1
                 self.log.debug("bump Patch")
             else:

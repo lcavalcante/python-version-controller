@@ -8,7 +8,7 @@ def test_bump_major(feat_breaking_with_text: tuple[str, str]):
     assert str(version) == "1.0.0"
 
 
-def test_bump_major_2(feat_breaking_with_exclamation: tuple[str, str], initial_version):
+def test_bump_major_2(feat_breaking_with_exclamation: tuple[str, str]):
     version = SemVer(0, 1, 0)
     message = feat_breaking_with_exclamation[1]
     version.bump_version(message)
@@ -34,6 +34,20 @@ def test_no_bump(docs_commit: tuple[str, str]):
     message = docs_commit[1]
     version.bump_version(message)
     assert str(version) == "0.1.0"
+
+
+def test_no_bump_not_conventional(no_cc_bug_number_commit: tuple[str, str]):
+    version = SemVer(1, 0, 0)
+    message = no_cc_bug_number_commit[1]
+    version.bump_version(message)
+    assert str(version) == "1.0.0"
+
+
+def test_no_bump_no_type(no_cc_simple_commit: tuple[str, str]):
+    version = SemVer(1, 0, 0)
+    message = no_cc_simple_commit[1]
+    version.bump_version(message)
+    assert str(version) == "1.0.0"
 
 
 def test_bump_multiple():

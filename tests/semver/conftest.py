@@ -14,17 +14,6 @@ def feat_commit():
 
 
 @pytest.fixture
-def feat_commit_with_body():
-    return (
-        "feat",
-        """feat: Add dashboard widgets
-
-This adds configurable widgets to the dashboard.
-Users can now customize their view.""",
-    )
-
-
-@pytest.fixture
 def feat_breaking_with_exclamation():
     return ("feat!", "feat!: Redesign API endpoint structure")
 
