@@ -361,6 +361,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "pygit2" },
     { name = "structlog" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 
 [package.dev-dependencies]
@@ -376,6 +377,7 @@ dev = [
 requires-dist = [
     { name = "pygit2", specifier = ">=1.18.0" },
     { name = "structlog", specifier = ">=25.3.0" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'", specifier = ">=4.0.0" },
 ]
 
 [package.metadata.requires-dev]

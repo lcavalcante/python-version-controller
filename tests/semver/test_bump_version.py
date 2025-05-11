@@ -1,3 +1,4 @@
+import pytest
 from pyvc.semver import SemVer
 
 
@@ -104,3 +105,14 @@ def test_bump_multiple4():
 
     version.bump_version("feat: Add new feature")
     assert str(version) == "0.2.0"
+
+
+def test_parse_semver_str():
+    version = SemVer.semver_from_string("1.1.0")
+    assert str(version) == "1.1.0"
+
+
+def test_parse_semver_invalid_str():
+    with pytest.raises(Exception) as excinfo:
+        SemVer.semver_from_string("1.1.0.2")
+    assert "invalid string" in str(excinfo)
