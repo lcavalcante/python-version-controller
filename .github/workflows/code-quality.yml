@@ -8,10 +8,13 @@ on:
 
 jobs:
   test-and-coverage:
+    name: Test with Python
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -24,13 +27,17 @@ jobs:
         enable-cache: true
         cache-dependency-glob: "uv.lock"
 
+    - name: Install tox-uv
+      run: |
+        uv tool install tox --with tox-uv
+
     - name: Sync dependencies
       run: |
         uv sync --all-extras
 
     - name: Run tests with coverage
       run: |
-        uv run pytest --cov=. --cov-report=xml --cov-report=html --cov-report=term --junitxml=junit.xml -o junit_family=legacy
+        tox p
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
@@ -38,5 +45,6 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
         fail_ci_if_error: true
-        verbose: true
+        flags: unittests
         name: coverage-report
+        verbose: true
