@@ -1,7 +1,12 @@
 from enum import Enum, auto
-
-
+import sys
 import structlog
+
+# Python 3.11+ has Self in typing module
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 
 class CommitEnum(Enum):
@@ -39,6 +44,19 @@ class SemVer:
         message (str): commit message content
         """
         return type[-1] == "!" or "BREAKING CHANGE:" in message
+
+    @classmethod
+    def semver_from_string(cls, str_version: str) -> Self:
+        # TODO: regex?
+        list_version = str_version.split(".")
+        if len(list_version) != 3:
+            # TODO: custom exception
+            raise Exception("invalid string formating for semantic versioning")
+
+        major = int(list_version[0])
+        minor = int(list_version[1])
+        patch = int(list_version[2])
+        return cls(major, minor, patch)
 
     def bump_version(self, message: str) -> None:
         """
