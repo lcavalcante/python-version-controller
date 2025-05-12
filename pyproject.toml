@@ -19,7 +19,7 @@ dev = [
     "rich>=14.0.0",
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 
 [tool.pyright]
