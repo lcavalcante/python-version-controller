@@ -2,6 +2,7 @@
 CLI parsing for pyvc command.
 """
 
+from pygit2 import Commit
 import structlog
 from pathlib import Path, PurePath
 from pygit2.repository import Repository
@@ -29,12 +30,25 @@ def validate_args(root: str, version: str) -> bool:
     return is_valid
 
 
-def main(root: str, version: str) -> str:
+def main(root: str, version: str, start_commit_id: str | None = None) -> str:
     repo_path = Path(root) / PurePath(".git")
     semver = SemVer.semver_from_string(version)
+
     repo = Repository(str(repo_path))
-    for commit in repo.walk(repo.head.target, SortMode.TOPOLOGICAL | SortMode.REVERSE):
+
+    log.debug("starting repo walk", start_commit_id=start_commit_id)
+    commit_walker = repo.walk(repo.head.target, SortMode.TOPOLOGICAL | SortMode.REVERSE)
+
+    # if start_commit is defined for versioning, skip parents on walk
+    if start_commit_id:
+        start_commit = repo[start_commit_id]
+        if isinstance(start_commit, Commit):
+            for parent in start_commit.parent_ids:
+                commit_walker.hide(parent)
+
+    for commit in commit_walker:
         message = commit.message
+        log.info("commit", id=commit.id, short=commit.short_id)
         semver.bump_version(message)
 
     log.info(f"final version {str(semver)}")
