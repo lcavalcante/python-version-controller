@@ -9,6 +9,9 @@ else:
     from typing_extensions import Self
 
 
+log = structlog.get_logger()
+
+
 class CommitEnum(Enum):
     FEAT = auto()
     FIX = auto()
@@ -22,13 +25,20 @@ class CommitEnum(Enum):
     TEST = auto()
 
 
+class BumpEnum(Enum):
+    MAJOR = auto()
+    MINOR = auto()
+    PATCH = auto()
+    NO_BUMP = auto()
+
+
 class SemVer:
     def __init__(self, major: int, minor: int, patch: int):
         self.major = major
         self.minor = minor
         self.patch = patch
 
-        self.log = structlog.get_logger()
+        self.log = log
 
     def __repr__(self):
         return f"{self.major}.{self.minor}.{self.patch}"
@@ -58,7 +68,8 @@ class SemVer:
         patch = int(list_version[2])
         return cls(major, minor, patch)
 
-    def bump_version(self, message: str) -> None:
+    @classmethod
+    def bump_type(cls, message: str) -> BumpEnum:
         """
         Given a version number MAJOR.MINOR.PATCH, increment the:
 
@@ -82,6 +93,8 @@ class SemVer:
         # Parameters:
         message (str): commit message content
         """
+
+        bump = BumpEnum.NO_BUMP
         head = message.split("\n")[0]
 
         # TODO: regex?
@@ -89,22 +102,35 @@ class SemVer:
 
         if len(parsed_head) > 1:
             commit_type = parsed_head[0].strip().upper()
-            head_text = parsed_head[1].strip()
-            self.log = self.log.bind(tag=commit_type, text=head_text)
 
-            if self.is_breaking_change(commit_type, message):
+            if cls.is_breaking_change(commit_type, message):
+                bump = BumpEnum.MAJOR
+            elif commit_type == CommitEnum.FEAT.name:
+                bump = BumpEnum.MINOR
+            elif commit_type == CommitEnum.FIX.name:
+                bump = BumpEnum.PATCH
+            else:
+                bump = BumpEnum.NO_BUMP
+        else:
+            log.info("not in conventional commit spec", message=head)
+
+        return bump
+
+    def bump_version(self, message: str) -> None:
+        self.log = self.log.bind(message=message)
+
+        match self.bump_type(message):
+            case BumpEnum.MAJOR:
                 self.major += 1
                 self.minor = 0
                 self.patch = 0
                 self.log.debug("bump Major")
-            elif commit_type == CommitEnum.FEAT.name:
+            case BumpEnum.MINOR:
                 self.minor += 1
                 self.patch = 0
                 self.log.debug("bump Minor")
-            elif commit_type == CommitEnum.FIX.name:
+            case BumpEnum.PATCH:
                 self.patch += 1
                 self.log.debug("bump Patch")
-            else:
+            case BumpEnum.NO_BUMP:
                 self.log.debug("no bump")
-        else:
-            self.log.info("not in conventional commit spec", message=head)
