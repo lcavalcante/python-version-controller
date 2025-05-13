@@ -8,7 +8,7 @@ from pathlib import Path, PurePath
 from pygit2.repository import Repository
 from pygit2.enums import SortMode
 
-from pyvc.semver import SemVer
+from pyvcc.semver import SemVer
 
 
 log = structlog.get_logger()

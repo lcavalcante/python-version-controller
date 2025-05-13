@@ -1,5 +1,5 @@
 import pytest
-from pyvc.semver import SemVer
+from pyvcc.semver import SemVer
 
 
 def test_bump_major(feat_breaking_with_text: tuple[str, str]):

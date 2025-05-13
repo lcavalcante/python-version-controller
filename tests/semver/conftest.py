@@ -1,5 +1,5 @@
 import pytest
-from pyvc import SemVer
+from pyvcc import SemVer
 
 
 @pytest.fixture

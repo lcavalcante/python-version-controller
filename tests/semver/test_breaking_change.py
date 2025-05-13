@@ -1,4 +1,4 @@
-from pyvc.semver import SemVer
+from pyvcc.semver import SemVer
 
 
 def test_feat_normal(feat_commit):
