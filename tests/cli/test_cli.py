@@ -2,8 +2,8 @@ from pygit2 import Commit
 import pytest
 from pygit2.repository import Repository
 
-from pyvc.cli import main, validate_args
-from pyvc.semver import BumpEnum, SemVer
+from pyvcc.cli import main, validate_args
+from pyvcc.semver import BumpEnum, SemVer
 
 
 class MockCommit:
