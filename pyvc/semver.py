@@ -98,16 +98,19 @@ class SemVer:
         head = message.split("\n")[0]
 
         # TODO: regex?
-        parsed_head = head.split(":")
+        parsed_head = head.split(": ")
 
         if len(parsed_head) > 1:
-            commit_type = parsed_head[0].strip().upper()
+            if parsed_head[0].strip().upper().startswith("MERGE"):
+                commit_type = parsed_head[1].strip().upper()
+            else:
+                commit_type = parsed_head[0].strip().upper()
 
             if cls.is_breaking_change(commit_type, message):
                 bump = BumpEnum.MAJOR
-            elif commit_type == CommitEnum.FEAT.name:
+            elif commit_type.startswith(CommitEnum.FEAT.name):
                 bump = BumpEnum.MINOR
-            elif commit_type == CommitEnum.FIX.name:
+            elif commit_type.startswith(CommitEnum.FIX.name):
                 bump = BumpEnum.PATCH
             else:
                 bump = BumpEnum.NO_BUMP

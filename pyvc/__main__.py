@@ -6,7 +6,7 @@ import os
 import sys
 import argparse
 import structlog
-from pyvc.cli import main, validate_args
+from pyvcc.cli import main, validate_args
 
 
 log = structlog.get_logger()
