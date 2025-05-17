@@ -1,6 +1,8 @@
-from enum import Enum, auto
+import re
 import sys
 import structlog
+
+from enum import Enum, auto
 
 # Python 3.11+ has Self in typing module
 if sys.version_info >= (3, 11):
@@ -94,14 +96,15 @@ class SemVer:
         message (str): commit message content
         """
 
+        regex = re.compile(r"[.*]?([a-z]*!?)(\(.*\))?:\s(.*)$")
         bump = BumpEnum.NO_BUMP
         head = message.split("\n")[0]
 
-        # TODO: regex?
-        parsed_head = head.split(":")
+        parsed_head = regex.search(head)
 
-        if len(parsed_head) > 1:
-            commit_type = parsed_head[0].strip().upper()
+        if parsed_head is not None:
+            commit_type = parsed_head.groups()[0].upper()
+            log.debug("trying bump", type=commit_type, message=head)
 
             if cls.is_breaking_change(commit_type, message):
                 bump = BumpEnum.MAJOR
@@ -112,7 +115,7 @@ class SemVer:
             else:
                 bump = BumpEnum.NO_BUMP
         else:
-            log.info("not in conventional commit spec", message=head)
+            log.error("not in conventional commit spec", message=head)
 
         return bump
 
