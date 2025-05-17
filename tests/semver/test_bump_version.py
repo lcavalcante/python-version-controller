@@ -51,6 +51,20 @@ def test_no_bump_no_type(no_cc_simple_commit: tuple[str, str]):
     assert str(version) == "1.0.0"
 
 
+def test_bump_merge():
+    version = SemVer(1, 0, 0)
+    message = "Merged feat!(xyz): break"
+    version.bump_version(message)
+    assert str(version) == "2.0.0"
+
+
+def test_bump_merge2():
+    version = SemVer(1, 0, 0)
+    message = "Merged feat(xyz): break"
+    version.bump_version(message)
+    assert str(version) == "1.1.0"
+
+
 def test_bump_multiple():
     """patch -> minor -> major"""
     version = SemVer(0, 1, 0)
@@ -105,6 +119,26 @@ def test_bump_multiple4():
 
     version.bump_version("feat: Add new feature")
     assert str(version) == "0.2.0"
+
+
+def test_bump_multiple5():
+    """patch -> patch -> minor"""
+    version = SemVer(0, 1, 0)
+
+    version.bump_version("fix: Fix login bug")
+    assert str(version) == "0.1.1"
+
+    version.bump_version("fix: Fix logout bug")
+    assert str(version) == "0.1.2"
+
+    version.bump_version("Fix logout bug")
+    assert str(version) == "0.1.2"
+
+    version.bump_version("feat(asdf): Add new feature")
+    assert str(version) == "0.2.0"
+
+    version.bump_version("Merge feat!(asdf): break new feature")
+    assert str(version) == "1.0.0"
 
 
 def test_parse_semver_str():
