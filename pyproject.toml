@@ -1,7 +1,7 @@
 [project]
-name = "python-version-controller"
-version = "0.2.1"
-description = "PyVC python version controller using conventional commits"
+name = "PyVCC"
+version = "1.2.2"
+description = "PyVCC python version controller using conventional commits"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -19,11 +19,18 @@ dev = [
     "rich>=14.0.0",
 ]
 
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
 [tool.pyright]
-include = ["pyvc", "tests"]
+include = ["pyvcc", "tests"]
 exclude = [
     "**/__pycache__",
     "**/node_modules",
@@ -46,7 +53,7 @@ omit = [
     ".venv/*",
     "setup.py",
     "*/migrations/*",
-    "pyvc/__main__.py",
+    "pyvcc/__main__.py",
 ]
 
 [tool.coverage.report]
