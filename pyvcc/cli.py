@@ -2,9 +2,10 @@
 CLI parsing for pyvc command.
 """
 
-from pygit2 import Commit
 import structlog
+
 from pathlib import Path, PurePath
+from pygit2 import Commit
 from pygit2.repository import Repository
 from pygit2.enums import SortMode
 
@@ -48,8 +49,8 @@ def main(root: str, version: str, start_commit_id: str | None = None) -> str:
 
     for commit in commit_walker:
         message = commit.message
-        log.info("commit", id=commit.id, short=commit.short_id)
+        log.debug("commit", id=commit.id, short=commit.short_id)
         semver.bump_version(message)
 
-    log.info(f"final version {str(semver)}")
+    log.debug(f"final version {str(semver)}")
     return str(semver)
