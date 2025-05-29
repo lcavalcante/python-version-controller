@@ -2,7 +2,7 @@ from pygit2 import Commit
 import pytest
 from pygit2.repository import Repository
 
-from pyvcc.cli import main, validate_args
+from pyvcc.cli import run, validate_args
 from pyvcc.semver import BumpEnum, SemVer
 
 
@@ -13,14 +13,14 @@ class MockCommit:
         self.short_id = short_id
 
 
-def test_main_invalid_path():
+def test_run_invalid_path():
     with pytest.raises(Exception):
-        main("/(7", "1.0.0")
+        run("/(7", "1.0.0")
 
 
-def test_main_invalid_semver():
+def test_run_invalid_semver():
     with pytest.raises(Exception):
-        main(".", "1.0.0.2")
+        run(".", "1.0.0.2")
 
 
 def test_validate_version():
@@ -41,7 +41,7 @@ def test_single_commit(monkeypatch):
 
     monkeypatch.setattr(Repository, "walk", mock_walk)
 
-    assert main(".", "1.0.0") == "1.1.0"
+    assert run(".", "1.0.0") == "1.1.0"
 
 
 def test_two_commits(monkeypatch):
@@ -53,7 +53,7 @@ def test_two_commits(monkeypatch):
 
     monkeypatch.setattr(Repository, "walk", mock_walk)
 
-    assert main(".", "1.0.0") == "1.2.0"
+    assert run(".", "1.0.0") == "1.2.0"
 
 
 def test_head_bump_commit():
@@ -64,10 +64,10 @@ def test_head_bump_commit():
         message = commit.message
         match SemVer.bump_type(message):
             case BumpEnum.MAJOR:
-                assert main(".", "1.0.0", str(repo.head.target)) == "2.0.0"
+                assert run(".", "1.0.0", str(repo.head.target)) == "2.0.0"
             case BumpEnum.MINOR:
-                assert main(".", "1.0.0", str(repo.head.target)) == "1.1.0"
+                assert run(".", "1.0.0", str(repo.head.target)) == "1.1.0"
             case BumpEnum.PATCH:
-                assert main(".", "1.0.0", str(repo.head.target)) == "1.0.1"
+                assert run(".", "1.0.0", str(repo.head.target)) == "1.0.1"
             case BumpEnum.NO_BUMP:
-                assert main(".", "1.0.0", str(repo.head.target)) == "1.0.0"
+                assert run(".", "1.0.0", str(repo.head.target)) == "1.0.0"

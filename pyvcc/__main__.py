@@ -7,10 +7,11 @@ import os
 import structlog
 import sys
 import argparse
-from pyvcc.cli import main, validate_args
+from pyvcc.cli import run
+from pyvcc.cli import validate_args
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(prog="PyVC", description=__doc__)
     parser.add_argument("--root", type=str, default=".", required=False)
     parser.add_argument("--initial-version", type=str, required=False, default="0.1.0")
@@ -42,5 +43,9 @@ if __name__ == "__main__":
         cache_logger_on_first_use=True,
     )
 
-    version = main(root, version, commit)
+    version = run(root, version, commit)
     sys.stdout.write(version)
+
+
+if __name__ == "__main__":
+    main()

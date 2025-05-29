@@ -31,7 +31,7 @@ def validate_args(root: str, version: str) -> bool:
     return is_valid
 
 
-def main(root: str, version: str, start_commit_id: str | None = None) -> str:
+def run(root: str, version: str, start_commit_id: str | None = None) -> str:
     repo_path = Path(root) / PurePath(".git")
     semver = SemVer.semver_from_string(version)
 
