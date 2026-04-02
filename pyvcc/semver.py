@@ -49,13 +49,13 @@ class SemVer:
     def is_breaking_change(type: str, message: str) -> bool:
         """
         SemVer defines that a breaking change is a commit with a type ending in '!'
-        OR that contains 'BREAKING CHANGE:' in the messsage body
+        OR that contains 'BREAKING CHANGE:' in the message body
 
         # Parameters:
         type (str): Commit message type (feat, fix, chore, etc)
         message (str): commit message content
         """
-        return type[-1] == "!" or "BREAKING CHANGE:" in message
+        return (type and type[-1] == "!") or "BREAKING CHANGE:" in message
 
     @classmethod
     def semver_from_string(cls, str_version: str) -> Self:
@@ -96,17 +96,34 @@ class SemVer:
         message (str): commit message content
         """
 
-        regex = re.compile(r"[.*]?([a-z]*!?)(\(.*\))?:\s(.*)$")
+        regex = re.compile(r"^(?:Merged?\s+)?(\w+!?)(?:\(([^)]*)\))?(!?)(?::\s+(.+))?$")
         bump = BumpEnum.NO_BUMP
         head = message.split("\n")[0]
 
         parsed_head = regex.search(head)
 
         if parsed_head is not None:
-            commit_type = parsed_head.groups()[0].upper()
-            log.debug("trying bump", type=commit_type, message=head)
+            groups = parsed_head.groups()
+            type_with_breaking = groups[0].upper()
+            breaking_indicator = groups[2]  # Captures '!' after scope, e.g. feat(api)!:
 
-            if cls.is_breaking_change(commit_type, message):
+            # Combine type+breaking indicator for is_breaking_change check
+            # e.g. "FEAT!" from type or "FEAT" + "!" from scope suffix
+            effective_type = (
+                type_with_breaking
+                if type_with_breaking.endswith("!")
+                else type_with_breaking + breaking_indicator
+            )
+            is_breaking = cls.is_breaking_change(effective_type, message)
+
+            # Clean the type by removing trailing !
+            commit_type = type_with_breaking.rstrip("!")
+
+            log.debug(
+                "trying bump", type=commit_type, message=head, breaking=is_breaking
+            )
+
+            if is_breaking:
                 bump = BumpEnum.MAJOR
             elif commit_type == CommitEnum.FEAT.name:
                 bump = BumpEnum.MINOR
