@@ -24,9 +24,9 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: install git
+      - name: install libgit2
         run: |
-          sudo apt update && sudo apt install -y libgit2
+          sudo apt-get update && sudo apt-get install -y libgit2-dev
 
       - name: Sync dependencies
         run: |
